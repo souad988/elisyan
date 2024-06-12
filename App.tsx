@@ -5,9 +5,12 @@
  * @format
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
+import ImagePicker from 'react-native-image-crop-picker';
+import RNFS from 'react-native-fs';
 import {
+  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -15,14 +18,11 @@ import {
   Text,
   useColorScheme,
   View,
+  Image,
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
 type SectionProps = PropsWithChildren<{
@@ -57,9 +57,46 @@ function Section({children, title}: SectionProps): React.JSX.Element {
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-
+  const [imageUri, setImageUri] = useState();
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
+  useEffect(() => {
+    console.log('imageUri', imageUri);
+  }, [imageUri])
+  
+  const handleClick = () => {
+    ImagePicker.openCamera({
+      width: 300,
+      height: 400,
+      cropping: true,
+      writeTempFile: true,
+      //includeBase64: true, // Include base64 in the response
+    })
+      .then(async image => {
+        console.log(image);
+        filename = image.path.split('/').pop()
+        const imageFileName = `elisyan_${filename}`;
+
+        const directoryPath = `${RNFS.ExternalStorageDirectoryPath}/DCIM/elisyan`;
+        console.log('directory ',directoryPath);
+        await RNFS.mkdir(directoryPath);
+        const filePath = `${directoryPath}/${imageFileName}`;
+        console.log('filePath ',filePath);
+        // Move the image file to the new location
+        await RNFS.moveFile(image.path, filePath);
+        //setSavedImagePath(filePath);
+        setImageUri(`file:/${filePath}`);
+        /** 
+        RNFS.scanFile([{ path: filePath, mime: 'image/jpg' }])
+          .then(() => console.log('scan file success'))
+          .catch(err => console.log('scan file error:', err));
+        */
+        
+      })
+      .catch(error => {
+        console.log(error);
+  });
   };
 
   return (
@@ -71,25 +108,22 @@ function App(): React.JSX.Element {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        <Header />
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
           <Section title="See Your Changes">
-            <ReloadInstructions />
+            {
+              imageUri? <View style={{flex: 1}}><Image
+            source={{ uri:imageUri }}
+            contentFit="contain"
+            style={{ width: 300, aspectRatio: 1 , borderColor: 'black', borderWidth: 1}}
+          /></View>:null
+            }
           </Section>
-          <Section title="Debug">
-            <DebugInstructions />
+          <Section title=''>
+            <Button onPress={() => handleClick()} title="take a photo" />
           </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
         </View>
       </ScrollView>
     </SafeAreaView>
