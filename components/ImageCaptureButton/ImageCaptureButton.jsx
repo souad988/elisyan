@@ -1,21 +1,21 @@
 import React from 'react';
 import {Button, View} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import {saveImageToFile} from './ImageCaptureButtonScripts';
+import {saveBase64ImageToFile} from './ImageCaptureButtonScripts';
 
-export default function ImageCaptureButton({setUri}) {
+export default function ImageCaptureButton({setBase64_file_path}) {
   const handleClick = async () => {
-    console.log('clicked');
     ImagePicker.openCamera({
       width: 300,
       height: 400,
       cropping: true,
       writeTempFile: true,
+      includeBase64: true,
     })
       .then(async image => {
-        const savedFilePath = await saveImageToFile(image);
+        const savedFilePath = await saveBase64ImageToFile(image);
         if (savedFilePath) {
-          setUri(`file://${savedFilePath}`);
+          setBase64_file_path(`${savedFilePath}`);
         }
       })
       .catch(error => {
@@ -25,7 +25,7 @@ export default function ImageCaptureButton({setUri}) {
 
   return (
     <View>
-      <Button onPress={async () => await handleClick()} title="Take a Photo" />
+      <Button onPress={async () => await handleClick()} title="Take Photo and save base64" />
     </View>
   );
 };

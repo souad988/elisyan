@@ -5,7 +5,9 @@ import ImagePickButton from '../components/ImageCaptureButton/ImagePickButton';
 
 const ImageCaptureView = () => {
   const [uri, setUri] = useState();
+  const [base64_file_path, setBase64_file_path] = useState();
   const [base64, setBase64] = useState();
+
   const RenderImage = () => {
     return(
       <View>
@@ -46,8 +48,8 @@ const ImageCaptureView = () => {
         <RenderImage />
         <RenderBase64Image />
       </View>
-      <ImageCaptureButton setUri={setUri} />
-      <ImagePickButton setBase64={setBase64} />
+      <ImageCaptureButton setBase64_file_path={setBase64_file_path} />
+      <ImagePickButton setBase64={setBase64}  filebase64Path={base64_file_path}/>
     </View>
   );
 };
