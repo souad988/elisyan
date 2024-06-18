@@ -9,6 +9,7 @@ export default function ImageCaptureButton({setBase64_file_path}) {
       width: 300,
       height: 400,
       cropping: true,
+      freeStyleCropEnabled: true,
       writeTempFile: true,
       includeBase64: true,
     })
